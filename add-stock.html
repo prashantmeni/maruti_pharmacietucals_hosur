@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Stock - Maruti Pharmaceuticals</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+        }
+
+        #head {
+            background-color: rgb(208, 242, 199);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        #head-left {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+        #head-left img {
+            width: 50px;
+            height: 50px;
+        }
+        #head h1 {
+            color: rgb(255, 255, 255);
+            font-size: 24px;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px 20px;
+        }
+        .navbar ul {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar li {
+            margin: 0 15px;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: darkred;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: darkblue;
+        }
+
+        .dashboard {
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .dashboard h2 {
+            text-align: center;
+            color: darkblue;
+            margin-bottom: 20px;
+        }
+        .stock-form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .stock-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stock-form input, .stock-form .file-label {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .stock-form .file-label {
+            cursor: pointer;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        .stock-form input[type="file"] {
+            display: none;
+        }
+        .stock-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: darkblue;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .stock-form button:hover {
+            background-color: navy;
+        }
+        .stock-form .separator {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        .stock-form .separator::before {
+            content: '';
+            position: absolute;
+            width: 45%;
+            height: 1px;
+            background-color: #ddd;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .stock-form .separator::after {
+            content: '';
+            position: absolute;
+            width: 45%;
+            height: 1px;
+            background-color: #ddd;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f0f0f0;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div id="head">
+        <div id="head-left">
+            <img src="https://i.ibb.co/C0fC00m/plogo1.png" alt="Maruti Pharmaceuticals Logo">
+            <h1>Maruti Pharmaceuticals</h1>
+        </div>
+    </div>
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="add-stock.html">Add Stock</a></li>
+            <li><a href="inventory.html">Inventory</a></li>
+        </ul>
+    </nav>
+    <div class="dashboard">
+        <h2>Add New Stock</h2>
+        <div id="statusMessage" class="status-message"></div>
+        <form class="stock-form" id="stockForm">
+            <label for="name">Medicine Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter medicine name" required>
+            <label for="strength">Strength</label>
+            <input type="text" id="strength" name="strength" placeholder="e.g., 500mg, 250mg" required>
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" name="quantity" placeholder="Enter number of units" required min="1">
+            <label for="expiry-date">Expiry Date</label>
+            <input type="date" id="expiry-date" name="expiry-date" required>
+            <button type="submit">Add Stock</button>
+            <div class="separator">OR</div>
+            <label for="importCSV" class="file-label">Import from CSV</label>
+            <input type="file" id="importCSV" accept=".csv">
+        </form>
+    </div>
+    <footer>
+        &copy; 2025 Maruti Pharmaceuticals. All rights reserved.
+    </footer>
+    <script>
+        const STORE_KEY = 'maruti_medicines_v1';
+        
+        function saveMedicine(medicine) {
+            let medicines = JSON.parse(localStorage.getItem(STORE_KEY)) || [];
+            medicines.push(medicine);
+            localStorage.setItem(STORE_KEY, JSON.stringify(medicines));
+        }
+
+        function showStatus(message, isError = false) {
+            const statusMessage = document.getElementById("statusMessage");
+            statusMessage.textContent = message;
+            statusMessage.className = isError ? "status-message error" : "status-message success";
+            statusMessage.style.display = "block";
+            setTimeout(() => { statusMessage.style.display = "none"; }, 5000);
+        }
+
+        document.getElementById("stockForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const medicine = {};
+            for (let [key, value] of formData.entries()) {
+                medicine[key] = value;
+            }
+            if (!medicine.name || !medicine.quantity || !medicine['expiry-date']) {
+                showStatus("Please fill out all fields correctly.", true);
+                return;
+            }
+            saveMedicine(medicine);
+            showStatus(`Stock for ${medicine.name} added successfully!`);
+            this.reset();
+        });
+
+        document.getElementById("importCSV").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const csvText = event.target.result;
+                const rows = csvText.trim().split('\n');
+                const headers = rows[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+                const expectedHeaders = ["name", "strength", "quantity", "expiry-date"];
+                const areHeadersValid = expectedHeaders.every(h => headers.includes(h));
+                if (!areHeadersValid) {
+                    showStatus("CSV headers are incorrect. Expected: name, strength, quantity, expiry-date", true);
+                    return;
+                }
+                let importedCount = 0;
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                    if (row.length !== headers.length) continue;
+                    const medicine = {};
+                    headers.forEach((header, index) => { medicine[header] = row[index]; });
+                    if (medicine.name && medicine.quantity && medicine['expiry-date']) {
+                        saveMedicine(medicine);
+                        importedCount++;
+                    }
+                }
+                if (importedCount > 0) {
+                    showStatus(`${importedCount} stock items imported successfully!`);
+                } else {
+                    showStatus("No valid stock items found in the CSV file.", true);
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
