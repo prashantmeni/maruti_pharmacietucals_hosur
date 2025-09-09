@@ -12,6 +12,7 @@
             background-color: #fafafa;
         }
 
+        /* Header */
         #head {
             background-color: rgb(208, 242, 199);
             padding: 20px 30px;
@@ -37,6 +38,7 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
+        /* Navigation Bar */
         .navbar {
             background-color: white;
             padding: 10px 20px;
@@ -62,6 +64,7 @@
             color: darkblue;
         }
 
+        /* Slider */
         .slider {
             margin: 20px auto;
             width: 90%;
@@ -162,22 +165,43 @@
             text-align: center;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* NEW GAUGE STYLES */
         .gauge {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: conic-gradient(
-                var(--color, darkblue) calc(var(--percent) * 1%),
-                #eee 0
-            );
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 10px;
+            position: relative;
+            background: #e5e7eb;
+        }
+        .gauge-inner {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            color: #333;
-            font-size: 16px;
-            transition: background 1s ease;
+            font-size: 18px;
+        }
+        .gauge-total {
+            background: conic-gradient(darkblue var(--percent), #eee var(--percent));
+        }
+        .gauge-qty {
+            background: conic-gradient(green var(--percent), #eee var(--percent));
+        }
+        .gauge-expired {
+            background: conic-gradient(red var(--percent), #eee var(--percent));
+        }
+        .gauge-near {
+            background: conic-gradient(orange var(--percent), #eee var(--percent));
         }
 
         footer {
@@ -189,55 +213,50 @@
             border-top: 1px solid #ddd;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
-    /* Styles for tablets and smaller devices */
-    #head {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 15px 20px;
-    }
-    #head h1 {
-        font-size: 20px;
-    }
-    #head-left {
-        gap: 10px;
-    }
-    .navbar ul {
-        flex-direction: column; /* Stacks the list items vertically */
-        align-items: center;    /* Centers the links horizontally */
-        gap: 10px;              /* Adds space between the stacked links */
-    }
-    .navbar li {
-        margin: 5px 0;          /* Adjusts margins for the new vertical layout */
-    }
-}
-    }
-    .slider {
-        height: 200px;
-        font-size: 20px;
-        width: 95%;
-    }
-    .search-box input {
-        width: 90%;
-    }
-    #stockContainer {
-        justify-content: center;
-    }
-    .stock-card {
-        width: 100%;
-        max-width: 300px;
-    }
-    .summary-grid {
-        grid-template-columns: 1fr;
-    }
-    .summary-card {
-        padding: 15px;
-    }
-}
-
-      
-      
+            #head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 15px 20px;
+            }
+            #head h1 {
+                font-size: 20px;
+            }
+            #head-left {
+                gap: 10px;
+            }
+            .navbar ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .navbar li {
+                margin: 5px 0;
+            }
+            .slider {
+                height: 200px;
+                font-size: 20px;
+                width: 95%;
+            }
+            .search-box input {
+                width: 90%;
+            }
+            #stockContainer {
+                justify-content: center;
+            }
+            .stock-card {
+                width: 100%;
+                max-width: 300px;
+            }
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-card {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -273,19 +292,27 @@
     <h2>Inventory Summary</h2>
     <div class="summary-grid">
         <div class="summary-card">
-            <div class="gauge" id="gaugeTotal" style="--percent:0; --color:darkblue;">0</div>
+            <div class="gauge gauge-total" id="gaugeTotal">
+                <div class="gauge-inner">0</div>
+            </div>
             <p><b>Total Medicines</b></p>
         </div>
         <div class="summary-card">
-            <div class="gauge" id="gaugeQty" style="--percent:0; --color:green;">0</div>
+            <div class="gauge gauge-qty" id="gaugeQty">
+                <div class="gauge-inner">0</div>
+            </div>
             <p><b>Total Quantity</b></p>
         </div>
         <div class="summary-card">
-            <div class="gauge" id="gaugeExpired" style="--percent:0; --color:red;">0</div>
+            <div class="gauge gauge-expired" id="gaugeExpired">
+                <div class="gauge-inner">0</div>
+            </div>
             <p><b>Expired</b></p>
         </div>
         <div class="summary-card">
-            <div class="gauge" id="gaugeNearExpiry" style="--percent:0; --color:orange;">0</div>
+            <div class="gauge gauge-near" id="gaugeNearExpiry">
+                <div class="gauge-inner">0</div>
+            </div>
             <p><b>Near Expiry</b></p>
         </div>
     </div>
@@ -353,11 +380,13 @@
             if (status === "Near Expiry") nearExpiryCount++;
         });
 
-        document.getElementById("gaugeTotal").textContent = totalMedicines;
-        document.getElementById("gaugeQty").textContent = totalQty;
-        document.getElementById("gaugeExpired").textContent = expiredCount;
-        document.getElementById("gaugeNearExpiry").textContent = nearExpiryCount;
+        // Update the inner text of the gauge-inner div
+        document.querySelector('#gaugeTotal .gauge-inner').textContent = totalMedicines;
+        document.querySelector('#gaugeQty .gauge-inner').textContent = totalQty;
+        document.querySelector('#gaugeExpired .gauge-inner').textContent = expiredCount;
+        document.querySelector('#gaugeNearExpiry .gauge-inner').textContent = nearExpiryCount;
         
+        // Update the percent variable for the conic gradient
         document.getElementById("gaugeTotal").style.setProperty("--percent", totalMedicines > 0 ? 100 : 0);
         document.getElementById("gaugeQty").style.setProperty("--percent", totalQty > 0 ? 100 : 0);
         document.getElementById("gaugeExpired").style.setProperty("--percent", expiredCount > 0 ? 100 : 0);
@@ -373,7 +402,4 @@
     };
 </script>
 </body>
-
 </html>
-
-
