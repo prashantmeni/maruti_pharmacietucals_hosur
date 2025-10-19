@@ -203,12 +203,27 @@
         &copy; 2025 Maruti Pharmaceuticals. All rights reserved.
     </footer>
     <script>
-        const STORE_KEY = 'maruti_medicines_v1';
-        
-        function saveMedicine(medicine) {
-            let medicines = JSON.parse(localStorage.getItem(STORE_KEY)) || [];
-            medicines.push(medicine);
-            localStorage.setItem(STORE_KEY, JSON.stringify(medicines));
+        const API_BASE = 'http://localhost:3000/api'; // Adjust for your server URL (e.g., production domain)
+
+        // Function to add a medicine via API
+        async function addMedicine(medicine) {
+            try {
+                const res = await fetch(`${API_BASE}/inventory`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: medicine.name,
+                        strength: medicine.strength,
+                        quantity: parseInt(medicine.quantity),
+                        expiryDate: medicine['expiry-date'] // Map to backend field
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to add medicine');
+                return { success: true, message: data.message };
+            } catch (err) {
+                return { success: false, message: err.message };
+            }
         }
 
         function showStatus(message, isError = false) {
@@ -219,27 +234,31 @@
             setTimeout(() => { statusMessage.style.display = "none"; }, 5000);
         }
 
-        document.getElementById("stockForm").addEventListener("submit", function(e) {
+        document.getElementById("stockForm").addEventListener("submit", async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const medicine = {};
             for (let [key, value] of formData.entries()) {
                 medicine[key] = value;
             }
-            if (!medicine.name || !medicine.quantity || !medicine['expiry-date']) {
+            if (!medicine.name || !medicine.strength || !medicine.quantity || !medicine['expiry-date']) {
                 showStatus("Please fill out all fields correctly.", true);
                 return;
             }
-            saveMedicine(medicine);
-            showStatus(`Stock for ${medicine.name} added successfully!`);
-            this.reset();
+            const result = await addMedicine(medicine);
+            if (result.success) {
+                showStatus(`Stock for ${medicine.name} added successfully!`);
+                this.reset();
+            } else {
+                showStatus(result.message, true);
+            }
         });
 
-        document.getElementById("importCSV").addEventListener("change", function(e) {
+        document.getElementById("importCSV").addEventListener("change", async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = async function(event) {
                 const csvText = event.target.result;
                 const rows = csvText.trim().split('\n');
                 const headers = rows[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
@@ -250,25 +269,29 @@
                     return;
                 }
                 let importedCount = 0;
+                let errors = [];
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
                     if (row.length !== headers.length) continue;
                     const medicine = {};
                     headers.forEach((header, index) => { medicine[header] = row[index]; });
-                    if (medicine.name && medicine.quantity && medicine['expiry-date']) {
-                        saveMedicine(medicine);
-                        importedCount++;
+                    if (medicine.name && medicine.strength && medicine.quantity && medicine['expiry-date']) {
+                        const result = await addMedicine(medicine);
+                        if (result.success) {
+                            importedCount++;
+                        } else {
+                            errors.push(`${medicine.name}: ${result.message}`);
+                        }
                     }
                 }
                 if (importedCount > 0) {
-                    showStatus(`${importedCount} stock items imported successfully!`);
+                    showStatus(`${importedCount} stock items imported successfully!${errors.length ? ' Errors: ' + errors.join('; ') : ''}`);
                 } else {
-                    showStatus("No valid stock items found in the CSV file.", true);
+                    showStatus(`No valid stock items imported. Errors: ${errors.join('; ')}`, true);
                 }
             };
             reader.readAsText(file);
         });
     </script>
 </body>
-
 </html>
