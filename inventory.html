@@ -322,9 +322,12 @@
         &copy; 2025 Maruti Pharmaceuticals. All rights reserved.
     </footer>
     <script>
-        const STORE_KEY = 'maruti_medicines_v1';
-        const getItems = () => JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-        const setItems = (arr) => localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+        const API_BASE = 'http://localhost:3000/api'; // Adjust for your server URL (e.g., production domain)
+        const $ = (id) => document.getElementById(id);
+        
+        let items = [];
+        let sortState = { col: 'expiry-date', dir: 'asc' };
+
         const statusFor = (expiry) => {
             const d = Math.floor((new Date(expiry).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
             if (d < 0) return { key: 'expired', label: 'Expired' };
@@ -332,10 +335,6 @@
             if (d <= 90) return { key: 'near', label: '≤90d' };
             return { key: 'ok', label: 'OK' };
         };
-        const $ = (id) => document.getElementById(id);
-        
-        let items = getItems();
-        let sortState = { col: 'expiry-date', dir: 'asc' };
 
         const gaugeCfg = {
             type: 'doughnut', options: { rotation: -90, circumference: 180, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
@@ -350,11 +349,25 @@
             chart.update('active');
         };
 
-        const renderTables = () => {
+        const renderTables = async () => {
             const q = ($('searchInput').value || '').toLowerCase();
             const filt = $('filterStatus').value;
             const tbody = $('tbody');
             tbody.innerHTML = '';
+
+            try {
+                const params = new URLSearchParams();
+                if (q) params.append('search', q);
+                if (filt !== 'all') params.append('filter', filt);
+                const res = await fetch(`${API_BASE}/inventory?${params}`);
+                if (!res.ok) throw new Error('Failed to fetch inventory');
+                items = await res.json();
+            } catch (err) {
+                console.error('Error fetching inventory:', err);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error loading inventory. Please try again.</td></tr>';
+                return;
+            }
+
             const filteredItems = items.filter(it => {
                 const hay = `${it.name} ${it.strength||''}`.toLowerCase();
                 const st = statusFor(it['expiry-date']);
@@ -397,97 +410,4 @@
                 if (st.key === 'expired') expiredSKUs++;
                 if (st.key === 'near' || st.key === 'soon') nearOrExpiredSKUs++;
             });
-            setGauge(gAvail, totalQty > 0 ? 100 : 0);
-            $('m_avail').textContent = `${totalQty} units available`;
-            setGauge(gExp, items.length > 0 ? ((expiredSKUs + nearOrExpiredSKUs) / items.length) * 100 : 0);
-            $('m_exp').textContent = `${expiredSKUs + nearOrExpiredSKUs} SKUs at risk or expired`;
-            setGauge(gSales, 0); // Sales tracking not implemented in this version
-            $('m_sales').textContent = 'Sales data not available';
-            setGauge(gItems, items.length > 0 ? 100 : 0);
-            $('m_items').textContent = `${items.length} SKUs tracked`;
-        };
-        
-        const populateSalesSelect = () => {
-            const select = $('medicineSelect');
-            select.innerHTML = '<option value="">-- Select a Medicine --</option>';
-            items.forEach(item => {
-                if (item.quantity > 0) {
-                    const option = document.createElement('option');
-                    option.value = item.name;
-                    option.textContent = `${item.name} (${item.quantity} units)`;
-                    select.appendChild(option);
-                }
-            });
-        };
-
-        const showStatus = (message, isError = false) => {
-            const statusMessage = document.getElementById("salesStatus");
-            statusMessage.textContent = message;
-            statusMessage.className = isError ? "status-message error" : "status-message success";
-            statusMessage.style.display = "block";
-            setTimeout(() => { statusMessage.style.display = "none"; }, 5000);
-        };
-        
-        $('salesForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const medicineName = $('medicineSelect').value;
-            const saleQty = parseInt($('saleQuantity').value);
-            if (!medicineName || saleQty <= 0) {
-                showStatus("Please select a medicine and enter a valid quantity.", true);
-                return;
-            }
-            const item = items.find(it => it.name === medicineName);
-            if (!item || item.quantity < saleQty) {
-                showStatus("Insufficient stock or invalid item selected.", true);
-                return;
-            }
-            item.quantity -= saleQty;
-            setItems(items);
-            showStatus(`Sale of ${saleQty} units of ${item.name} recorded!`);
-            $('salesForm').reset();
-            renderTables();
-        });
-
-        window.onDelete = (name) => {
-            if (confirm('Are you sure you want to delete this medicine?')) {
-                items = items.filter(it => it.name !== name);
-                setItems(items);
-                renderTables();
-            }
-        };
-
-        $('searchInput').addEventListener('input', renderTables);
-        $('filterStatus').addEventListener('change', renderTables);
-        document.querySelectorAll('th[data-col]').forEach(th => {
-            th.addEventListener('click', () => {
-                const col = th.dataset.col;
-                const dir = (sortState.col === col && sortState.dir === 'asc') ? 'desc' : 'asc';
-                sortState = { col, dir };
-                renderTables();
-            });
-        });
-
-        const daysUntil = (dateStr) => {
-            const d = new Date(dateStr);
-            d.setHours(0,0,0,0);
-            return Math.floor((d - new Date().setHours(0,0,0,0)) / 86400000);
-        };
-
-        window.onload = () => {
-            if (items.length === 0) {
-                const demoData = [
-                    { name: 'Paracetamol', strength: '500mg', quantity: 150, 'expiry-date': '2026-10-25' },
-                    { name: 'Amoxicillin', strength: '250mg', quantity: 60, 'expiry-date': '2025-11-20' },
-                    { name: 'Cough Syrup', strength: '100ml', quantity: 40, 'expiry-date': '2025-12-15' },
-                    { name: 'Vitamin D3', strength: '60k', quantity: 200, 'expiry-date': '2024-10-01' },
-                    { name: 'Ibuprofen', strength: '400mg', quantity: 90, 'expiry-date': '2027-05-10' }
-                ];
-                setItems(demoData);
-                items = demoData;
-            }
-            renderTables();
-        };
-    </script>
-</body>
-
-</html>
+            setGauge(gAvail
