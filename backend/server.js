@@ -1,27 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config(); // For environment variables (e.g., MongoDB URI)
+require('dotenv').config(); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Allow cross-origin requests from your front-end
-app.use(express.json()); // Parse JSON bodies
+// Important: For security, consider setting a specific origin instead of '*' for production.
+app.use(cors()); 
+app.use(express.json()); 
 
 // MongoDB Connection
-const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/maruti_pharma'; // Use env var for production
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/maruti_pharma'; 
+mongoose.connect(mongoURI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Medicine Schema (matches your data structure)
+// Medicine Schema 
 const medicineSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   strength: { type: String, required: true },
   quantity: { type: Number, required: true, min: 0 },
-  expiryDate: { type: Date, required: true } // Note: Changed to Date type for better querying
+  expiryDate: { type: Date, required: true } 
 });
 
 const Medicine = mongoose.model('Medicine', medicineSchema);
@@ -35,7 +36,7 @@ const getStatus = (expiryDate) => {
   return { key: 'ok', label: 'OK' };
 };
 
-// API Endpoints
+// --- API Endpoints ---
 
 // GET /api/inventory - Fetch all medicines (with optional search/filter)
 app.get('/api/inventory', async (req, res) => {
@@ -54,13 +55,18 @@ app.get('/api/inventory', async (req, res) => {
     // Filter by status
     if (filter && filter !== 'all') {
       const now = new Date();
-      if (filter === 'expired') query.expiryDate = { $lt: now };
-      else if (filter === 'soon') query.expiryDate = { $gte: now, $lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) };
-      else if (filter === 'near') query.expiryDate = { $gte: now, $lte: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000) };
-      else if (filter === 'ok') query.expiryDate = { $gt: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000) };
+      // Resetting time for accurate comparison with front-end logic
+      const now_midnight = new Date(now.setHours(0,0,0,0)); 
+      
+      if (filter === 'expired') query.expiryDate = { $lt: now_midnight };
+      else if (filter === 'soon') query.expiryDate = { $gte: now_midnight, $lte: new Date(now_midnight.getTime() + 30 * 24 * 60 * 60 * 1000) };
+      else if (filter === 'near') query.expiryDate = { $gte: now_midnight, $lte: new Date(now_midnight.getTime() + 90 * 24 * 60 * 60 * 1000) };
+      else if (filter === 'ok') query.expiryDate = { $gt: new Date(now_midnight.getTime() + 90 * 24 * 60 * 60 * 1000) };
     }
 
-    const medicines = await Medicine.find(query);
+    // Retrieve only necessary fields
+    const medicines = await Medicine.find(query, 'name strength quantity expiryDate'); 
+    
     const items = medicines.map(med => ({
       name: med.name,
       strength: med.strength,
@@ -75,13 +81,19 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
-// POST /api/inventory - Add new medicine (for add-stock.html integration)
+// POST /api/inventory - Add new medicine 
 app.post('/api/inventory', async (req, res) => {
   try {
     const { name, strength, quantity, expiryDate } = req.body;
     if (!name || !strength || quantity == null || !expiryDate) {
       return res.status(400).json({ error: 'All fields are required' });
     }
+    // Check if medicine already exists
+    const existingMed = await Medicine.findOne({ name });
+    if (existingMed) {
+        return res.status(400).json({ error: 'Medicine with this name already exists.' });
+    }
+    
     const newMed = new Medicine({ name, strength, quantity, expiryDate: new Date(expiryDate) });
     await newMed.save();
     res.status(201).json({ message: 'Medicine added successfully' });
@@ -113,7 +125,9 @@ app.post('/api/sales', async (req, res) => {
     const med = await Medicine.findOne({ name: medicine });
     if (!med) return res.status(404).json({ error: 'Medicine not found' });
     if (med.quantity < quantity) return res.status(400).json({ error: 'Insufficient stock' });
-    med.quantity -= quantity;
+    
+    // Ensure quantity is handled as a number
+    med.quantity -= Number(quantity); 
     await med.save();
     res.json({ message: `Sale of ${quantity} units of ${medicine} recorded` });
   } catch (err) {
