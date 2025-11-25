@@ -1,0 +1,22 @@
+{
+  "inventory": [
+    {
+      "name": "Paracetamol",
+      "strength": "500mg",
+      "quantity": 100,
+      "expiryDate": "2024-03-01"
+    },
+    {
+      "name": "Amoxicillin",
+      "strength": "250mg",
+      "quantity": 50,
+      "expiryDate": "2025-11-20"
+    },
+    {
+      "name": "Cetirizine",
+      "strength": "10mg",
+      "quantity": 200,
+      "expiryDate": "2026-06-15"
+    }
+  ]
+}
