@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Profile - Maruti Pharmaceuticals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #1e7e34;
+            --color-primary-light: #2e9e44;
+            --color-primary-dark: #0d5f1a;
+            --color-secondary: #059669;
+            --color-danger: #dc2626;
+            --color-warning: #f59e0b;
+            --color-success: #10b981;
+            --color-background: #f0f9ff;
+            --color-card-bg: #ffffff;
+            --color-text-dark: #0f172a;
+            --color-text-muted: #64748b;
+            --color-border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--color-text-dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        #sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+            box-shadow: var(--shadow-xl);
+            overflow-y: auto;
+        }
+
+        #head-logo {
+            padding: 0 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #head-logo img {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        #head-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar ul {
+            list-style: none;
+        }
+
+        .navbar a {
+            display: block;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 12px 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .navbar a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #a8df8e;
+        }
+
+        .navbar a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-left-color: #a8df8e;
+            font-weight: 600;
+        }
+
+        .footer {
+            color: rgba(255, 255, 255, 0.6) !important;
+            padding: 20px 24px !important;
+            text-align: center;
+            font-size: 12px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== MAIN ===== */
+        main {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .dashboard h2 {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-text-dark);
+            margin: 0 0 32px;
+        }
+
+        /* ===== PROFILE HEADER ===== */
+        .profile-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            border-radius: 16px;
+            padding: 40px;
+            color: #fff;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(40px);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 4px solid #fff;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-header h3 {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            margin: 0 0 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-header p {
+            font-size: 16px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== CARD STYLES ===== */
+        .card {
+            background: var(--color-card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-primary);
+            margin: 0 0 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        /* ===== PROFILE INFO ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .info-item span {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-text-dark);
+        }
+
+        /* ===== FORM STYLES ===== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="phone"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-card-bg);
+            color: var(--color-text-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(30, 126, 52, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        /* ===== BUTTON STYLES ===== */
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 126, 52, 0.3);
+        }
+
+        .btn.secondary {
+            background: var(--color-border);
+            color: var(--color-text-dark);
+        }
+
+        .btn.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn.danger {
+            background: var(--color-danger);
+            color: #fff;
+        }
+
+        .btn.danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--color-primary);
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin: 0 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ===== ALERT ===== */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .alert.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid var(--color-success);
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            #sidebar {
+                width: 240px;
+            }
+            main {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 12px 16px;
+            }
+
+            .navbar {
+                margin-left: auto;
+            }
+
+            .navbar ul {
+                display: flex;
+                gap: 8px;
+            }
+
+            .navbar a {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .footer {
+                display: none;
+            }
+
+            main {
+                margin-left: 0;
+                margin-top: 70px;
+                padding: 16px;
+            }
+
+            .profile-header {
+                padding: 30px 20px;
+            }
+
+            .profile-header h3 {
+                font-size: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div id="head-logo">
+            <img src="https://placehold.co/60x60/1e7e34/ffffff?text=MP" alt="Maruti Pharmaceuticals Logo">
+            <h1>Maruti Pharma</h1>
+        </div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">🏠 Dashboard</a></li>
+                <li><a href="inventory.html">📦 Inventory</a></li>
+                <li><a href="add-stock.html">➕ Add Stock</a></li>
+                <li><a href="profile.html">👤 Admin Profile</a></li>
+            </ul>
+        </nav>
+        <div style="flex-grow: 1;"></div> 
+        <footer class="footer">
+            &copy; 2025 Maruti Pharmaceuticals
+        </footer>
+    </div>
+
+    <main>
+        <div class="dashboard">
+            <h2>Admin Profile</h2>
+
+            <div id="successAlert" class="alert success"></div>
+
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="avatar" id="avatarDisplay">👤</div>
+                <h3 id="adminName">Admin User</h3>
+                <p id="adminRole">Inventory Manager</p>
+                <button type="button" class="btn secondary" style="margin-top: 20px; background: rgba(255,255,255,0.2); color: #fff;" onclick="toggleAvatarEdit()">✏️ Change Picture</button>
+                <div id="avatarEditBox" style="display:none; margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                    <input type="text" id="avatarEmoji" placeholder="Enter emoji or initial" maxlength="2" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff;" />
+                    <button type="button" class="btn primary" style="width: 100%; margin-bottom: 8px;" onclick="saveAvatar()">Save Avatar</button>
+                    <button type="button" class="btn secondary" style="width: 100%; background: rgba(255,255,255,0.2); color: #fff;" onclick="toggleAvatarEdit()">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Activity Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Total Stock Added</h4>
+                    <div class="value" id="totalAdded">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Total Sales Recorded</h4>
+                    <div class="value" id="totalSales">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Active SKUs</h4>
+                    <div class="value" id="activeSKUs">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Items at Risk</h4>
+                    <div class="value" id="itemsAtRisk">0</div>
+                </div>
+            </div>
+
+            <!-- Personal Information Card -->
+            <div class="card">
+                <h3>Personal Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Full Name</label>
+                        <span id="infoName">—</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email Address</label>
+                        <span id="infoEmail">—</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone Number</label>
+                        <span id="infoPhone">—</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Position</label>
+                        <span id="infoPosition">—</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Join Date</label>
+                        <span id="infoJoinDate">—</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Department</label>
+                        <span id="infoDepartment">—</span>
+                    </div>
+                </div>
+                <button type="button" class="btn primary" onclick="toggleEditMode()" style="margin-top: 16px;">✏️ Edit Information</button>
+            </div>
+
+            <!-- Edit Profile Card -->
+            <div class="card" id="editCard" style="display: none;">
+                <h3>Edit Profile Information</h3>
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="editName" placeholder="Enter full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address *</label>
+                            <input type="email" id="editEmail" placeholder="Enter email address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="editPhone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label>Position *</label>
+                            <input type="text" id="editPosition" placeholder="e.g., Inventory Manager" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <input type="text" id="editDepartment" placeholder="e.g., Operations">
+                        </div>
+                        <div class="form-group">
+                            <label>Join Date</label>
+                            <input type="date" id="editJoinDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>About</label>
+                            <textarea id="editAbout" placeholder="Tell us about yourself..." rows="4" style="resize: vertical;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn primary">💾 Save Changes</button>
+                        <button type="button" class="btn secondary" onclick="toggleEditMode()">✕ Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="card">
+                <h3>Account Settings</h3>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notifyStock" checked> Notify me when stock is low
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notifyExpiry" checked> Notify me about expiring items
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="notifySales" checked> Email me daily sales summary
+                    </label>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn danger" onclick="clearProfile()">🗑️ Clear Profile Data</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const PROFILE_KEY = 'admin_profile_v1';
+        const DB_KEY = 'pharmacy_inventory_v1';
+        const $ = id => document.getElementById(id);
+
+        function loadProfile() {
+            try {
+                const raw = localStorage.getItem(PROFILE_KEY);
+                return raw ? JSON.parse(raw) : getDefaultProfile();
+            } catch (e) {
+                return getDefaultProfile();
+            }
+        }
+
+        function getDefaultProfile() {
+            return {
+                name: 'John Doe',
+                email: 'admin@marutipharma.com',
+                phone: '+91 98765 43210',
+                position: 'Inventory Manager',
+                department: 'Operations',
+                joinDate: new Date().toISOString().split('T')[0],
+                about: '',
+                notifyStock: true,
+                notifyExpiry: true,
+                notifySales: true
+            };
+        }
+
+        function saveProfile(profile) {
+            localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+        }
+
+        function loadInventoryStats() {
+            try {
+                const inv = localStorage.getItem(DB_KEY);
+                const items = Array.isArray(JSON.parse(inv || '[]')) ? JSON.parse(inv) : [];
+                
+                let totalQty = 0, atRisk = 0;
+                items.forEach(it => {
+                    totalQty += Number(it.quantity || 0);
+                    const days = Math.floor((new Date(it.expiryDate).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+                    if (days < 90) atRisk++;
+                });
+
+                $('totalAdded').textContent = items.length;
+                $('activeSKUs').textContent = items.length;
+                $('itemsAtRisk').textContent = atRisk;
+                $('totalSales').textContent = '0';
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+
+        function displayProfile() {
+            const profile = loadProfile();
+            
+            $('adminName').textContent = profile.name;
+            $('infoName').textContent = profile.name;
+            $('infoEmail').textContent = profile.email;
+            $('infoPhone').textContent = profile.phone || '—';
+            $('infoPosition').textContent = profile.position;
+            $('infoDepartment').textContent = profile.department || '—';
+            $('infoJoinDate').textContent = profile.joinDate || '—';
+
+            $('editName').value = profile.name;
+            $('editEmail').value = profile.email;
+            $('editPhone').value = profile.phone || '';
+            $('editPosition').value = profile.position;
+            $('editDepartment').value = profile.department || '';
+            $('editJoinDate').value = profile.joinDate || '';
+            $('editAbout').value = profile.about || '';
+
+            $('notifyStock').checked = profile.notifyStock !== false;
+            $('notifyExpiry').checked = profile.notifyExpiry !== false;
+            $('notifySales').checked = profile.notifySales !== false;
+
+            loadInventoryStats();
+        }
+
+        $('profileForm').onsubmit = (e) => {
+            e.preventDefault();
+            const profile = {
+                name: $('editName').value.trim(),
+                email: $('editEmail').value.trim(),
+                phone: $('editPhone').value.trim(),
+                position: $('editPosition').value.trim(),
+                department: $('editDepartment').value.trim(),
+                joinDate: $('editJoinDate').value,
+                about: $('editAbout').value.trim(),
+                notifyStock: $('notifyStock').checked,
+                notifyExpiry: $('notifyExpiry').checked,
+                notifySales: $('notifySales').checked
+            };
+
+            if (!profile.name || !profile.email || !profile.position) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            saveProfile(profile);
+            const alert = $('successAlert');
+            alert.textContent = '✓ Profile updated successfully!';
+            alert.classList.add('show');
+            setTimeout(() => alert.classList.remove('show'), 3000);
+            displayProfile();
+        };
+
+        window.resetForm = () => {
+            displayProfile();
+        };
+
+        window.clearProfile = () => {
+            if (confirm('Are you sure? This will reset your profile to default.')) {
+                localStorage.removeItem(PROFILE_KEY);
+                displayProfile();
+                const alert = $('successAlert');
+                alert.textContent = '✓ Profile reset to default!';
+                alert.classList.add('show');
+                setTimeout(() => alert.classList.remove('show'), 3000);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayProfile();
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('.navbar a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === DB_KEY || e.key === PROFILE_KEY) {
+                displayProfile();
+            }
+        });
+
+        function toggleAvatarEdit() {
+            const box = $('avatarEditBox');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveAvatar() {
+            const emoji = $('avatarEmoji').value.trim();
+            if (!emoji) {
+                alert('Please enter an emoji or initial');
+                return;
+            }
+
+            const profile = loadProfile();
+            profile.avatar = emoji;
+            saveProfile(profile);
+            displayProfile();
+            toggleAvatarEdit();
+        }
+
+        function toggleEditMode() {
+            const card = $('editCard');
+            const isEditing = card.style.display !== 'none';
+            card.style.display = isEditing ? 'none' : 'block';
+            if (!isEditing) displayProfile();
+        }
+    </script>
+
+</body>
+</html>

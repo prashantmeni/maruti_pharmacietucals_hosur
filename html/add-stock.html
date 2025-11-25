@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Stock - Maruti Pharmaceuticals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #1e7e34;
+            --color-primary-light: #2e9e44;
+            --color-primary-dark: #0d5f1a;
+            --color-secondary: #059669;
+            --color-danger: #dc2626;
+            --color-warning: #f59e0b;
+            --color-success: #10b981;
+            --color-background: #f0f9ff;
+            --color-card-bg: #ffffff;
+            --color-text-dark: #0f172a;
+            --color-text-muted: #64748b;
+            --color-border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--color-text-dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        #sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+            box-shadow: var(--shadow-xl);
+            overflow-y: auto;
+        }
+
+        #head-logo {
+            padding: 0 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #head-logo img {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        #head-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar ul {
+            list-style: none;
+        }
+
+        .navbar a {
+            display: block;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 12px 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+        }
+
+        .navbar a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #a8df8e;
+        }
+
+        .navbar a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-left-color: #a8df8e;
+            font-weight: 600;
+        }
+
+        .footer {
+            color: rgba(255, 255, 255, 0.6) !important;
+            padding: 20px 24px !important;
+            text-align: center;
+            font-size: 12px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== MAIN ===== */
+        main {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .dashboard h2 {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-text-dark);
+            margin: 0 0 32px;
+        }
+
+        /* ===== FORM CARD ===== */
+        .panel {
+            background: var(--color-card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-card-bg);
+            color: var(--color-text-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(30, 126, 52, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: #fff;
+            min-width: 180px;
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 126, 52, 0.3);
+        }
+
+        .btn.secondary {
+            background: var(--color-border);
+            color: var(--color-text-dark);
+        }
+
+        .btn.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn.danger {
+            background: var(--color-danger);
+            color: #fff;
+        }
+
+        .btn.danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 24px;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid var(--color-border);
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(135deg, #eaf1f9 0%, #e0f2fe 100%);
+            color: var(--color-primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:hover {
+            background: #fcfdff;
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .alert.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid var(--color-success);
+        }
+
+        .alert.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #7f1d1d;
+            border-left: 4px solid var(--color-danger);
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            #sidebar {
+                width: 240px;
+            }
+            main {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 12px 16px;
+            }
+
+            .navbar {
+                margin-left: auto;
+            }
+
+            .navbar ul {
+                display: flex;
+                gap: 8px;
+            }
+
+            .navbar a {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .footer {
+                display: none;
+            }
+
+            main {
+                margin-left: 0;
+                margin-top: 70px;
+                padding: 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn.primary {
+                min-width: 100%;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div id="head-logo">
+            <img src="https://placehold.co/60x60/1e7e34/ffffff?text=MP" alt="Maruti Pharmaceuticals Logo">
+            <h1>Maruti Pharma</h1>
+        </div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">🏠 Dashboard</a></li>
+                <li><a href="inventory.html">📦 Inventory</a></li>
+                <li><a href="add-stock.html">➕ Add Stock</a></li> 
+                <li><a href="profile.html">👤 Admin Profile</a></li>
+            </ul>
+        </nav>
+        <div style="flex-grow: 1;"></div> 
+        <footer class="footer">
+            &copy; 2025 Maruti Pharmaceuticals
+        </footer>
+    </div>
+
+    <main>
+        <div class="dashboard">
+            <h2>Add New Stock</h2>
+
+            <div class="alert success" id="successAlert"></div>
+            <div class="alert error" id="errorAlert"></div>
+
+            <div class="panel">
+                <form id="stockForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Medicine Name *</label>
+                            <input type="text" id="medicineName" placeholder="e.g., Paracetamol" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Strength *</label>
+                            <input type="text" id="strength" placeholder="e.g., 500mg, 100ml" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantity *</label>
+                            <input type="number" id="quantity" placeholder="Enter quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Expiry Date *</label>
+                            <input type="date" id="expiryDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Import from JSON (Optional)</label>
+                            <input type="file" id="jsonFile" accept=".json">
+                            <small style="color: var(--color-text-muted); display: block; margin-top: 6px;">Upload a JSON file with inventory array</small>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn primary">➕ Add Stock</button>
+                        <button type="reset" class="btn secondary">Clear Form</button>
+                        <button type="button" class="btn danger" id="clearAllBtn">🗑️ Clear All Data</button>
+                    </div>
+                </form>
+
+                <h3 style="margin-top: 40px; margin-bottom: 20px; color: var(--color-primary); font-family: 'Poppins', sans-serif;">Recent Additions</h3>
+                <table id="recentTable">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Strength</th>
+                            <th>Qty</th>
+                            <th>Expiry</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const DB_KEY = 'pharmacy_inventory_v1';
+        const $ = id => document.getElementById(id);
+
+        function loadInventory() {
+            try {
+                const raw = localStorage.getItem(DB_KEY);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.warn('loadInventory parse error', e);
+                return [];
+            }
+        }
+
+        function saveInventory(arr) {
+            try {
+                localStorage.setItem(DB_KEY, JSON.stringify(arr));
+                // notify other tabs / listeners
+                window.dispatchEvent(new Event('storage'));
+            } catch (e) {
+                console.error('saveInventory error', e);
+            }
+        }
+
+        function showAlert(type, message) {
+            const el = $(type === 'success' ? 'successAlert' : 'errorAlert');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        // generate stable unique id (string) to avoid onclick quoting issues
+        function makeId() {
+            return Date.now().toString() + '_' + Math.random().toString(36).slice(2, 9);
+        }
+
+        $('stockForm').onsubmit = (e) => {
+            e.preventDefault();
+            const name = $('medicineName').value.trim();
+            const strength = $('strength').value.trim();
+            const qty = Number($('quantity').value);
+            const expiry = $('expiryDate').value;
+
+            if (!name || !strength || !Number.isFinite(qty) || qty <= 0 || !expiry) {
+                showAlert('error', 'All fields are required and quantity must be > 0');
+                return;
+            }
+
+            const inv = loadInventory();
+            inv.push({ id: makeId(), name, strength, quantity: qty, expiryDate: expiry });
+            saveInventory(inv);
+            showAlert('success', `✓ Added ${name} (${strength})`);
+            $('stockForm').reset();
+            renderRecent();
+        };
+
+        $('jsonFile').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    let data = JSON.parse(evt.target.result);
+                    let items = Array.isArray(data) ? data : (data.inventory || []);
+                    if (!Array.isArray(items)) throw new Error('Invalid format');
+                    const inv = loadInventory();
+                    items.forEach(it => {
+                        if (it.name && it.strength) {
+                            inv.push({ id: makeId(), name: it.name, strength: it.strength, quantity: Number(it.quantity||0), expiryDate: it.expiryDate || '' });
+                        }
+                    });
+                    saveInventory(inv);
+                    showAlert('success', `✓ Imported ${items.length} items`);
+                    renderRecent();
+                } catch (err) {
+                    showAlert('error', 'Invalid JSON format');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        $('clearAllBtn').onclick = () => {
+            if (confirm('Delete ALL inventory data?')) {
+                localStorage.removeItem(DB_KEY);
+                window.dispatchEvent(new Event('storage'));
+                showAlert('success', '✓ All data cleared');
+                renderRecent();
+            }
+        };
+
+        function renderRecent() {
+            const inv = loadInventory();
+            const recent = inv.slice(-10).reverse();
+            const tbody = $('recentBody');
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--color-text-muted);">No items added yet</td></tr>';
+                return;
+            }
+
+            // build rows with data-id attribute (safer than inline JS with unquoted strings)
+            tbody.innerHTML = recent.map((it) => {
+                return `
+                    <tr data-id="${it.id}">
+                        <td>${escapeHtml(it.name)}</td>
+                        <td>${escapeHtml(it.strength)}</td>
+                        <td>${escapeHtml(it.quantity)}</td>
+                        <td>${escapeHtml(it.expiryDate)}</td>
+                        <td><button class="btn danger btn-delete-item" data-id="${it.id}" style="padding:6px 10px; font-size:12px;">Delete</button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // attach delete handlers
+            document.querySelectorAll('.btn-delete-item').forEach(btn => {
+                btn.onclick = () => {
+                    const id = btn.getAttribute('data-id');
+                    if (!confirm('Delete this item?')) return;
+                    const all = loadInventory();
+                    const filtered = all.filter(x => String(x.id) !== String(id));
+                    saveInventory(filtered);
+                    renderRecent();
+                };
+            });
+        }
+
+        // helper to avoid XSS in table cells
+        function escapeHtml(s) {
+            return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+        }
+
+        // initial render on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRecent();
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('.navbar a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

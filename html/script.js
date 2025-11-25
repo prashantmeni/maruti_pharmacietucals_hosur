@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory - Maruti Pharmaceuticals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+        }
+        /* Header and Navbar styles (same as index.html) */
+        #head {
+            background-color: #2e7d32;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #head-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        #head-left img {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #head h1 {
+            color: #fff;
+            font-size: 24px;
+            margin: 0;
+            font-weight: 700;
+        }
+        .navbar {
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .navbar ul {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar li {
+            margin: 0 15px;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: #155724;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .navbar a:hover {
+            color: #0c3315;
+            background-color: #f0fff0;
+        }
+        .dashboard {
+            width: min(1100px, 94%);
+            margin: 22px auto;
+        }
+        .dashboard h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin: 0 0 16px;
+            font-size: 24px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .gauge-card {
+            padding: 14px;
+            text-align: center;
+        }
+        .gauge-card h3 {
+            margin: 0 0 10px;
+            color: #374151;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .meta {
+            font-size: 14px;
+            color: #666;
+            margin-top: 6px;
+            font-weight: 700;
+        }
+        .panel {
+            background: #fff;
+            margin-top: 18px;
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .row .grow {
+            flex: 1 1 260px;
+        }
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .btn.primary {
+            background: #2e7d32;
+            color: #fff;
+        }
+        .btn.primary:hover {
+             background: #1b5e20;
+        }
+        .btn.danger {
+            background: #c62828;
+            color: #fff;
+        }
+        .btn.danger:hover {
+            background: #b71c1c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: left;
+        }
+        th {
+            background: #f7fbff;
+            color: #0b3a75;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        tr:hover {
+            background: #fbfdff;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .ok { background: #e8f5e9; color: #2e7d32; }
+        .near { background: #fff7da; color: #b45309; }
+        .soon { background: #fff1e0; color: #e65100; }
+        .expired { background: #ffebee; color: #c62828; }
+        .footer {
+            margin: 22px auto;
+            width: min(1100px, 94%);
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        /* Custom Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: none; /* Controlled by JS */
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+        }
+        .modal.is-open { display: flex; }
+        .modal .sheet {
+            background: #fff;
+            width: min(400px, 90vw);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+            text-align: center;
+        }
+        .modal .sheet h3 {
+            margin: 0 0 15px;
+            color: #c62828;
+        }
+        .modal .sheet p {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .modal .sheet .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .sales-form {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .sales-form label,
+        .sales-form input,
+        .sales-form select,
+        .sales-form button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+        .status-message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .status-message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        @media (max-width: 640px) {
+            .row {
+                flex-direction: column;
+            }
+            .row > * {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="head">
+        <div id="head-left">
+            <img src="https://placehold.co/60x60/a8df8e/2e7d32?text=MP" alt="Maruti Pharmaceuticals Logo">
+            <h1>Maruti Pharmaceuticals</h1>
+        </div>
+    </div>
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="add-stock.html">Add Stock</a></li>
+            <li><a href="inventory.html">Inventory</a></li>
+        </ul>
+    </nav>
+    <div class="dashboard">
+        <h2>Inventory Monitoring</h2>
+        <div class="grid">
+            <div class="card gauge-card">
+                <h3>Available Stock (Units)</h3>
+                <canvas id="g_avail" height="140"></canvas>
+                <div class="meta" id="m_avail">0 units available</div>
+            </div>
+            <div class="card gauge-card">
+                <h3>Items at Risk</h3>
+                <canvas id="g_exp" height="140"></canvas>
+                <div class="meta" id="m_exp">0 SKUs at risk or expired</div>
+            </div>
+            <div class="card gauge-card">
+                <h3>Total SKUs Tracked</h3>
+                <canvas id="g_items" height="140"></canvas>
+                <div class="meta" id="m_items">0 distinct SKUs tracked</div>
+            </div>
+            <div class="card gauge-card">
+                <h3>Sales Recorded</h3>
+                <canvas id="g_sales" height="140"></canvas>
+                <div class="meta" id="m_sales">Sales data not aggregated</div>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Current Stock</h2>
+            <div class="row">
+                <input class="grow" type="text" id="searchInput" placeholder="Search medicine, strength…" oninput="renderTables()">
+                <select id="filterStatus" onchange="renderTables()">
+                    <option value="all">All Statuses</option>
+                    <option value="expired">Expired</option>
+                    <option value="soon">≤30 days</option>
+                    <option value="near">≤90 days</option>
+                    <option value="ok">OK</option>
+                </select>
+            </div>
+            <table id="inventoryTable">
+                <thead>
+                    <tr>
+                        <th data-col="name">Medicine ⬍</th>
+                        <th data-col="quantity">Qty ⬍</th>
+                        <th data-col="expiry-date">Expiry ⬍</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+        <div class="panel" style="margin-top: 20px;">
+            <h2>Record a New Sale</h2>
+            <div id="salesStatus" class="status-message"></div>
+            <form id="salesForm" class="sales-form">
+                <label for="medicineSelect">Select Medicine</label>
+                <select id="medicineSelect" name="medicine" required>
+                    <option value="">-- Select a Medicine (Stock > 0) --</option>
+                </select>
+                <label for="saleQuantity">Quantity to Sell</label>
+                <input type="number" id="saleQuantity" name="quantity" min="1" required>
+                <button type="submit" class="btn primary">Record Sale</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+        &copy; 2025 Maruti Pharmaceuticals. All rights reserved.
+    </footer>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="sheet">
+            <h3>Confirm Deletion</h3>
+            <p id="confirmMessage">Are you sure you want to delete this medicine?</p>
+            <div class="actions">
+                <button class="btn danger" id="confirmDeleteBtn">Delete</button>
+                <button class="btn primary" id="cancelDeleteBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- IMPORTANT: UPDATE THIS URL WHEN DEPLOYING YOUR BACKEND ---
+        const API_BASE = 'http://localhost:3000/api'; 
+        const $ = (id) => document.getElementById(id);
+        
+        let items = []; // Holds the full dataset
+        let sortState = { col: 'expiry-date', dir: 'asc' };
+
+        const daysUntil = (dateString) => {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const today = new Date().setHours(0,0,0,0);
+            const expiry = new Date(dateString).setHours(0,0,0,0);
+            return Math.round((expiry - today) / oneDay);
+        };
+
+        const statusFor = (expiry) => {
+            const d = daysUntil(expiry);
+            if (d < 0) return { key: 'expired', label: 'Expired' };
+            if (d <= 30) return { key: 'soon', label: '≤30d' };
+            if (d <= 90) return { key: 'near', label: '≤90d' };
+            return { key: 'ok', label: 'OK' };
+        };
+
+        // Chart.js Setup
+        const gaugeCfg = {
+            type: 'doughnut', 
+            options: { 
+                rotation: -90, 
+                circumference: 180, 
+                cutout: '75%', 
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false }, 
+                    tooltip: { enabled: false } 
+                } 
+            }
+        };
+        
+        // Initializing the charts (placeholders)
+        const gAvail = new Chart($('g_avail'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: ['#2e7d32', '#e5e7eb'], borderWidth: 0 }] } });
+        const gExp = new Chart($('g_exp'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: ['#c62828', '#e5e7eb'], borderWidth: 0 }] } });
+        const gSales = new Chart($('g_sales'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: ['#2563eb', '#e5e7eb'], borderWidth: 0 }] } });
+        const gItems = new Chart($('g_items'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: ['#7c3aed', '#e5e7eb'], borderWidth: 0 }] } });
+        
+        const setGauge = (chart, pct, max_val = 100) => {
+            const v = Math.min(max_val, Math.max(0, Math.round(pct)));
+            chart.data.datasets[0].data = [v, max_val - v];
+            chart.update('active');
+        };
+
+        function showStatus(message, isError = false) {
+            const statusMessage = document.getElementById("salesStatus");
+            statusMessage.textContent = message;
+            statusMessage.className = isError ? "status-message error" : "status-message success";
+            statusMessage.style.display = "block";
+            setTimeout(() => { statusMessage.style.display = "none"; }, 5000);
+        }
+
+        const fetchInventory = async () => {
+             try {
+                const res = await fetch(`${API_BASE}/inventory`);
+                if (!res.ok) throw new Error('Failed to fetch inventory');
+                items = await res.json();
+                return items;
+            } catch (err) {
+                console.error('Error fetching inventory:', err);
+                return [];
+            }
+        };
+
+        const renderTables = async () => {
+            await fetchInventory(); // Refresh local data copy
+            const q = ($('searchInput').value || '').toLowerCase();
+            const filt = $('filterStatus').value;
+            const tbody = $('tbody');
+            tbody.innerHTML = '';
+
+            const filteredItems = items.filter(it => {
+                const hay = `${it.name} ${it.strength||''} ${it['expiry-date']}`.toLowerCase();
+                const st = statusFor(it['expiry-date']);
+                const matchesQuery = !q || hay.includes(q);
+                
+                // Filtering logic
+                const matchesFilter = filt === 'all' 
+                    || st.key === filt 
+                    || (filt === 'near' && st.key === 'soon'); // 'Near' includes 'Soon' (<=90 days)
+
+                return matchesQuery && matchesFilter;
+            });
+
+            // Sorting logic (client-side)
+            filteredItems.sort((a, b) => {
+                const {col, dir} = sortState;
+                const dirFactor = dir === 'asc' ? 1 : -1;
+                let av = a[col] ?? ''; let bv = b[col] ?? '';
+
+                if(col === 'quantity') return dirFactor * (Number(av) - Number(bv));
+                if(col === 'expiry-date') return dirFactor * (daysUntil(av) - daysUntil(bv));
+                
+                // Default to string comparison
+                const sa = String(av).toLowerCase(); const sb = String(bv).toLowerCase();
+                return dirFactor * sa.localeCompare(sb);
+            });
+            
+            // Render rows
+            if (filteredItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No matching items found.</td></tr>';
+            } else {
+                filteredItems.forEach(it => {
+                    const st = statusFor(it['expiry-date']);
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${it.name} (${it.strength})</td>
+                        <td>${it.quantity}</td>
+                        <td>${it['expiry-date']}</td>
+                        <td><span class="badge ${st.key}">${st.label}</span></td>
+                        <td><button class="btn danger" onclick="confirmDelete('${it.name}')">Delete</button></td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            updateGauges();
+            populateSalesSelect();
+        };
+
+        const updateGauges = async () => {
+            // Aggregated data based on the full, unfiltered set (items)
+            let totalQty = 0;
+            let expiredSKUCount = 0;
+            let nearExpirySKUCount = 0;
+
+            items.forEach(it => {
+                totalQty += Number(it.quantity || 0);
+                const st = statusFor(it['expiry-date']);
+                if (st.key === 'expired') {
+                    expiredSKUCount++;
+                } else if (st.key === 'near' || st.key === 'soon') {
+                    nearExpirySKUCount++;
+                }
+            });
+
+            const totalSKUs = items.length;
+            const atRiskSKUs = expiredSKUCount + nearExpirySKUCount;
+
+            // Gauge calculations
+            const maxQtyVisual = 1000; 
+            const availPct = Math.min(100, (totalQty / maxQtyVisual) * 100);
+            const expPct = totalSKUs > 0 ? (atRiskSKUs / totalSKUs) * 100 : 0;
+            
+            // Update Available Stock Gauge
+            setGauge(gAvail, availPct);
+            $('m_avail').textContent = `${totalQty.toLocaleString()} units available`;
+
+            // Update Expiry Gauge (at risk SKUs)
+            setGauge(gExp, expPct);
+            $('m_exp').textContent = `${atRiskSKUs} SKUs at risk (${expiredSKUCount} expired)`;
+
+            // Update Items Gauge (SKUs)
+            setGauge(gItems, totalSKUs, totalSKUs > 5 ? totalSKUs : 5); // Use dynamic max for visualization
+            $('m_items').textContent = `${totalSKUs} distinct SKUs tracked`;
+
+            // Sales Gauge (Placeholder - no sales aggregation in backend yet)
+            setGauge(gSales, 0); 
+            $('m_sales').textContent = 'Sales data not aggregated';
+        };
+
+        const populateSalesSelect = () => {
+            const select = $('medicineSelect');
+            select.innerHTML = '<option value="">-- Select a Medicine (Stock > 0) --</option>';
+            items.filter(item => item.quantity > 0).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.name;
+                option.textContent = `${item.name} (${item.quantity} units)`;
+                select.appendChild(option);
+            });
+        };
+
+        // Table header sorting
+        document.querySelectorAll('#inventoryTable th[data-col]').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.getAttribute('data-col');
+                let dir = 'asc';
+                if (sortState.col === col && sortState.dir === 'asc') {
+                    dir = 'desc';
+                }
+                sortState = { col, dir };
+                renderTables();
+            });
+        });
+
+        // Sales Form Submission
+        $('salesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const medicineName = $('medicineSelect').value;
+            const saleQty = parseInt($('saleQuantity').value);
+            
+            if (!medicineName || saleQty <= 0 || isNaN(saleQty)) {
+                showStatus("Please select a medicine and enter a valid quantity.", true);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/sales`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ medicine: medicineName, quantity: saleQty })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showStatus(data.message);
+                    $('salesForm').reset();
+                    renderTables(); // Re-render table and gauges
+                } else {
+                    showStatus(data.error, true);
+                }
+            } catch (err) {
+                showStatus('Error recording sale. Check console for details.', true);
+                console.error(err);
+            }
+        });
+
+        // --- Custom Modal/Confirmation Logic ---
+        let pendingDeleteName = null;
+        
+        window.confirmDelete = (name) => {
+            pendingDeleteName = name;
+            $('confirmMessage').textContent = `Are you sure you want to delete the medicine: ${name}? This action cannot be undone.`;
+            $('confirmModal').classList.add('is-open');
+        };
+
+        $('cancelDeleteBtn').addEventListener('click', () => {
+            $('confirmModal').classList.remove('is-open');
+            pendingDeleteName = null;
+        });
+
+        $('confirmDeleteBtn').addEventListener('click', async () => {
+            $('confirmModal').classList.remove('is-open');
+            if (pendingDeleteName) {
+                try {
+                    const res = await fetch(`${API_BASE}/inventory/${pendingDeleteName}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showStatus(data.message);
+                        renderTables();
+                    } else {
+                        showStatus(data.error || 'Error deleting item', true);
+                    }
+                } catch (err) {
+                    showStatus('Network error during deletion.', true);
+                    console.error(err);
+                } finally {
+                    pendingDeleteName = null;
+                }
+            }
+        });
+        
+        // Initial load
+        window.onload = renderTables;
+    </script>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory - Maruti Pharmaceuticals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #1e7e34;
+            --color-primary-light: #2e9e44;
+            --color-primary-dark: #0d5f1a;
+            --color-secondary: #059669;
+            --color-danger: #dc2626;
+            --color-warning: #f59e0b;
+            --color-success: #10b981;
+            --color-background: #f0f9ff;
+            --color-card-bg: #ffffff;
+            --color-text-dark: #0f172a;
+            --color-text-muted: #64748b;
+            --color-border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--color-text-dark);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR STYLES ===== */
+        #sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0;
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+            box-shadow: var(--shadow-xl);
+            overflow-y: auto;
+        }
+
+        #head-logo {
+            padding: 0 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #head-logo img {
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 6px;
+            backdrop-filter: blur(10px);
+        }
+
+        #head-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar ul {
+            list-style: none;
+        }
+
+        .navbar a {
+            display: block;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 12px 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid transparent;
+            position: relative;
+        }
+
+        .navbar a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #a8df8e;
+        }
+
+        .navbar a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-left-color: #a8df8e;
+            font-weight: 600;
+        }
+
+        .footer {
+            color: rgba(255, 255, 255, 0.6) !important;
+            padding: 20px 24px !important;
+            text-align: center;
+            font-size: 12px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        main {
+            flex-grow: 1;
+            margin-left: 260px;
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard h2 {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-text-dark);
+            margin: 32px 0 24px;
+            text-align: left;
+        }
+
+        /* ===== GAUGE GRID ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--color-card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+            padding: 24px;
+        }
+
+        .gauge-card {
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .gauge-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--color-primary-light);
+        }
+
+        .gauge-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .gauge-canvas-wrapper {
+            width: 100%;
+            max-width: 140px;
+            height: 120px;
+            margin: 0 auto 16px;
+        }
+
+        .gauge-card h3 {
+            margin: 0 0 10px;
+            color: var(--color-text-dark);
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .meta {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-top: 8px;
+            font-weight: 700;
+        }
+
+        /* ===== PANEL STYLES ===== */
+        .panel {
+            background: var(--color-card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border);
+            padding: 28px;
+            margin-top: 0;
+        }
+
+        .panel h2 {
+            text-align: left;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        /* ===== ACTION BAR ===== */
+        .action-bar {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .action-bar .row {
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .row .grow {
+            flex: 1 1 200px;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-card-bg);
+            box-sizing: border-box;
+            color: var(--color-text-dark);
+            transition: border-color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 126, 52, 0.1);
+        }
+
+        /* ===== TABLE STYLES ===== */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid var(--color-border);
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(135deg, #eaf1f9 0%, #e0f2fe 100%);
+            color: var(--color-primary);
+            font-weight: 700;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #fcfdff;
+            box-shadow: inset 0 0 10px rgba(30, 126, 52, 0.05);
+        }
+
+        /* ===== BADGE STYLES ===== */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ok {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .near {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .soon {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            color: #92400e;
+        }
+
+        .expired {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #7f1d1d;
+        }
+
+        /* ===== BUTTON STYLES ===== */
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn.primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: var(--color-primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 126, 52, 0.3);
+        }
+
+        .btn.danger {
+            background: var(--color-danger);
+            color: #fff;
+        }
+
+        .btn.danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-save {
+            background: var(--color-primary);
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-save:hover {
+            background: var(--color-primary-light);
+        }
+
+        .btn-sell {
+            background: var(--color-secondary);
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-sell:hover {
+            background: #0891b2;
+        }
+
+        .btn-delete {
+            background: var(--color-danger);
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            #sidebar {
+                width: 240px;
+            }
+            main {
+                margin-left: 240px;
+                padding: 24px 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 12px 16px;
+                z-index: 1000;
+            }
+
+            #head-logo {
+                margin-bottom: 0;
+                padding: 0;
+            }
+
+            .navbar {
+                margin-left: auto;
+            }
+
+            .navbar ul {
+                display: flex;
+                gap: 8px;
+            }
+
+            .navbar a {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .footer {
+                display: none;
+            }
+
+            main {
+                margin-left: 0;
+                margin-top: 70px;
+                padding: 16px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gauge-canvas-wrapper {
+                max-width: 100px;
+                height: 100px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-background);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div id="head-logo">
+            <img src="https://placehold.co/60x60/1e7e34/ffffff?text=MP" alt="Maruti Pharmaceuticals Logo">
+            <h1>Maruti Pharma</h1>
+        </div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html">🏠 Dashboard</a></li>
+                <li><a href="inventory.html">📦 Inventory</a></li>
+                <li><a href="add-stock.html">➕ Add Stock</a></li> 
+                <li><a href="profile.html">👤 Admin Profile</a></li>
+            </ul>
+        </nav>
+        <div style="flex-grow: 1;"></div> 
+        <footer class="footer">
+            &copy; 2025 Maruti Pharmaceuticals
+        </footer>
+    </div>
+    
+    <main>
+        <div class="dashboard">
+            <h2>Inventory Management & Control</h2>
+
+            <div class="grid">
+                <div class="card gauge-card">
+                    <h3>Total Stock (Units)</h3>
+                    <div class="gauge-canvas-wrapper">
+                        <canvas id="g_avail"></canvas>
+                    </div>
+                    <div class="meta" id="m_avail">0 units</div>
+                </div>
+                <div class="card gauge-card">
+                    <h3>Items at Risk</h3>
+                    <div class="gauge-canvas-wrapper">
+                        <canvas id="g_exp"></canvas>
+                    </div>
+                    <div class="meta" id="m_exp">0 expired or near expiry</div>
+                </div>
+                <div class="card gauge-card">
+                    <h3>Total SKUs Tracked</h3>
+                    <div class="gauge-canvas-wrapper">
+                        <canvas id="g_items"></canvas>
+                    </div>
+                    <div class="meta" id="m_items">0 distinct SKUs</div>
+                </div>
+                <div class="card gauge-card">
+                    <h3>Low Stock Items</h3>
+                    <div class="gauge-canvas-wrapper">
+                        <canvas id="g_low"></canvas>
+                    </div>
+                    <div class="meta" id="m_low">0 items with qty ≤ 10</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Current Stock View</h2>
+                <div class="action-bar">
+                    <div class="row">
+                        <input class="grow" type="text" id="searchInput" placeholder="Search medicine, strength…" oninput="renderTables()">
+                        <select id="filterStatus" onchange="renderTables()">
+                            <option value="all">All Statuses</option>
+                            <option value="expired">Expired</option>
+                            <option value="soon">≤30 days</option>
+                            <option value="near">≤90 days</option>
+                            <option value="ok">OK</option>
+                        </select>
+                    </div>
+                </div>
+                <table id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th data-col="name">Medicine</th>
+                            <th data-col="strength">Strength</th>
+                            <th data-col="quantity">Qty</th>
+                            <th data-col="expiry-date">Expiry</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    const API_BASE = 'http://localhost:3000/api';
+    const DB_KEY = 'pharmacy_inventory_v1';
+    const $ = id => document.getElementById(id);
+    let backendAvailable = false;
+    let gAvail, gExp, gItems, gLow;
+    let allData = [];
+
+    function loadLocalInventory() {
+      try {
+        const raw = localStorage.getItem(DB_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr)) return [];
+        return arr.map(it => ({
+          id: it.id || (Date.now() + Math.floor(Math.random()*1000)),
+          name: String(it.name || '').trim(),
+          strength: String(it.strength || '').trim(),
+          quantity: Number(it.quantity || 0),
+          expiryDate: it.expiryDate || it['expiry-date'] || it.expiry || '',
+          source: 'local'
+        })).filter(it => it.name && it.strength);
+      } catch (e) { return []; }
+    }
+
+    function saveLocalInventory(arr) {
+      localStorage.setItem(DB_KEY, JSON.stringify(arr));
+    }
+
+    function normalizeApiItems(arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr.map(it => ({
+        id: it.id || (Date.now() + Math.floor(Math.random()*1000)),
+        name: String(it.name || '').trim(),
+        strength: String(it.strength || '').trim(),
+        quantity: Number(it.quantity || 0),
+        expiryDate: it.expiryDate || it['expiry-date'] || it.expiry || '',
+        source: 'backend'
+      })).filter(it => it.name && it.strength);
+    }
+
+    function mergeInventories(apiItems, localItems) {
+      const map = new Map();
+      const keyFor = it => (it.name + '|' + it.strength).toLowerCase();
+      
+      [ ...apiItems, ...localItems ].forEach(it => {
+        const k = keyFor(it);
+        if (!map.has(k)) {
+          map.set(k, { ...it });
+        } else {
+          const ex = map.get(k);
+          ex.quantity = Number(ex.quantity || 0) + Number(it.quantity || 0);
+          const exDate = new Date(ex.expiryDate || '');
+          const itDate = new Date(it.expiryDate || '');
+          if (!isNaN(itDate) && (isNaN(exDate) || itDate < exDate)) {
+            ex.expiryDate = it.expiryDate;
+          }
+        }
+      });
+      return Array.from(map.values());
+    }
+
+    function statusFor(expiry) {
+      const d = Math.floor((new Date(expiry).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+      if (isNaN(d)) return { key: 'ok', label: 'Unknown' };
+      if (d < 0) return { key: 'expired', label: 'Expired' };
+      if (d <= 30) return { key: 'soon', label: '≤30d' };
+      if (d <= 90) return { key: 'near', label: '≤90d' };
+      return { key: 'ok', label: 'OK' };
+    }
+
+    function escapeHtml(s) {
+      return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+    }
+
+    const gaugeCfg = {
+      type: 'doughnut',
+      options: {
+        rotation: -90,
+        circumference: 180,
+        cutout: '75%',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+      }
+    };
+
+    function initCharts() {
+      const primaryColor = '#1e7e34';
+      const dangerColor = '#dc2626';
+      const secondaryColor = '#059669';
+      const warningColor = '#f59e0b';
+      
+      gAvail = new Chart($('g_avail'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: [primaryColor, '#e2e8f0'], borderWidth: 0 }] } });
+      gExp = new Chart($('g_exp'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: [dangerColor, '#e2e8f0'], borderWidth: 0 }] } });
+      gItems = new Chart($('g_items'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: ['#2563eb', '#e2e8f0'], borderWidth: 0 }] } });
+      gLow = new Chart($('g_low'), { ...gaugeCfg, data: { datasets: [{ data: [0, 100], backgroundColor: [warningColor, '#e2e8f0'], borderWidth: 0 }] } });
+    }
+
+    function updateGauge(chart, value, max) {
+      const v = Math.max(0, Math.min(max, Math.round(value)));
+      chart.data.datasets[0].data = [v, Math.max(0, max - v)];
+      chart.update('active');
+    }
+
+    async function doAction(action, payload) {
+      if (backendAvailable && action !== 'delete-local') {
+        try {
+          if (action === 'sell') {
+            const res = await fetch(`${API_BASE}/sales`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ medicine: payload.name, quantity: payload.quantity })
+            });
+            if (!res.ok) {
+              const err = await res.json().catch(()=>({message:'Backend error'}));
+              alert('Error: ' + (err.error || err.message || res.status));
+              return false;
+            }
+            return true;
+          }
+
+          if (action === 'update') {
+            const current = payload.currentQuantity;
+            const desired = payload.newQuantity;
+            const diff = desired - current;
+            
+            if (diff > 0) {
+              const body = { name: payload.name, strength: payload.strength, quantity: diff, expiryDate: payload.newExpiry || payload.expiryDate };
+              const res = await fetch(`${API_BASE}/inventory`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+              if (!res.ok) {
+                const err = await res.json().catch(()=>({message:'Backend error'}));
+                alert('Error: ' + (err.error || err.message));
+                return false;
+              }
+            } else if (diff < 0) {
+              const res = await fetch(`${API_BASE}/sales`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ medicine: payload.name, quantity: Math.abs(diff) }) });
+              if (!res.ok) {
+                const err = await res.json().catch(()=>({message:'Backend error'}));
+                alert('Error: ' + (err.error || err.message));
+                return false;
+              }
+            }
+            return true;
+          }
+
+          if (action === 'delete') {
+            const ok = confirm(`Delete all entries for "${payload.name}"?`);
+            if (!ok) return false;
+            const res = await fetch(`${API_BASE}/inventory/${encodeURIComponent(payload.name)}`, { method: 'DELETE' });
+            if (!res.ok) {
+              const err = await res.json().catch(()=>({message:'Backend error'}));
+              alert('Error: ' + (err.error || err.message));
+              return false;
+            }
+            return true;
+          }
+        } catch (e) {
+          console.warn('Backend failed, fallback to local', e);
+        }
+      }
+
+      const local = loadLocalInventory();
+
+      if (action === 'sell') {
+        let remaining = Number(payload.quantity || 0);
+        const items = local.filter(it => it.name.toLowerCase() === payload.name.toLowerCase()).sort((a,b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+        for (const it of items) {
+          if (remaining === 0) break;
+          if (it.quantity >= remaining) { it.quantity -= remaining; remaining = 0; break; }
+          remaining -= it.quantity; it.quantity = 0;
+        }
+        if (remaining > 0) { alert('Not enough stock'); return false; }
+        const cleaned = local.filter(it => it.quantity > 0);
+        saveLocalInventory(cleaned);
+        return true;
+      }
+
+      if (action === 'update') {
+        const desired = Number(payload.newQuantity || 0);
+        const others = local.filter(it => !(it.name.toLowerCase() === payload.name.toLowerCase() && it.strength.toLowerCase() === payload.strength.toLowerCase()));
+        if (desired > 0) {
+          others.push({
+            id: Date.now() + Math.floor(Math.random()*1000),
+            name: payload.name,
+            strength: payload.strength,
+            quantity: desired,
+            expiryDate: payload.newExpiry || payload.expiryDate || ''
+          });
+        }
+        saveLocalInventory(others);
+        return true;
+      }
+
+      if (action === 'delete') {
+        const cleaned = local.filter(it => it.name.toLowerCase() !== payload.name.toLowerCase());
+        saveLocalInventory(cleaned);
+        return true;
+      }
+
+      return false;
+    }
+
+    async function render() {
+      let apiItems = [];
+      backendAvailable = false;
+
+      try {
+        const res = await fetch(`${API_BASE}/inventory`);
+        if (res.ok) {
+          const json = await res.json();
+          apiItems = normalizeApiItems(json);
+          backendAvailable = true;
+        } else {
+          try {
+            const body = await res.json();
+            if (Array.isArray(body)) apiItems = normalizeApiItems(body);
+            else if (Array.isArray(body.inventory)) apiItems = normalizeApiItems(body.inventory);
+          } catch (e) { }
+        }
+      } catch (e) {
+        console.warn('Backend unavailable');
+      }
+
+      const localItems = loadLocalInventory();
+      allData = mergeInventories(apiItems, localItems);
+      allData.sort((a,b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+      let totalQty = 0, atRisk = 0, lowStock = 0;
+      allData.forEach(it => {
+        totalQty += Number(it.quantity || 0);
+        const st = statusFor(it.expiryDate);
+        if (st.key === 'expired' || st.key === 'soon' || st.key === 'near') atRisk++;
+        if (Number(it.quantity || 0) <= 10) lowStock++;
+      });
+
+      const totalSKUs = allData.length;
+      const riskMax = Math.max(5, totalSKUs);
+      const qtyMax = Math.max(200, totalQty, 2000);
+
+      updateGauge(gAvail, totalQty, qtyMax);
+      updateGauge(gExp, atRisk, riskMax);
+      updateGauge(gItems, totalSKUs, riskMax);
+      updateGauge(gLow, lowStock, riskMax);
+
+      $('m_avail').textContent = totalQty.toLocaleString() + ' units';
+      $('m_exp').textContent = atRisk.toLocaleString() + ' items at risk';
+      $('m_items').textContent = totalSKUs.toLocaleString() + ' SKUs';
+      $('m_low').textContent = lowStock.toLocaleString() + ' low stock items';
+
+      renderTables();
+    }
+
+    function renderTables() {
+      const search = $('searchInput').value.toLowerCase();
+      const filter = $('filterStatus').value;
+      
+      let filtered = allData.filter(it => {
+        const matchSearch = !search || it.name.toLowerCase().includes(search) || it.strength.toLowerCase().includes(search);
+        let matchFilter = true;
+        if (filter !== 'all') {
+          const st = statusFor(it.expiryDate);
+          matchFilter = st.key === filter;
+        }
+        return matchSearch && matchFilter;
+      });
+
+      const tbody = $('tbody');
+      tbody.innerHTML = filtered.map((it, idx) => {
+        const st = statusFor(it.expiryDate);
+        return `
+          <tr>
+            <td>${escapeHtml(it.name)}</td>
+            <td>${escapeHtml(it.strength)}</td>
+            <td><input type="number" class="qty-input" data-id="${it.id}" value="${it.quantity}" min="0" style="width:100%; padding:8px; border: 1px solid var(--color-border); border-radius:6px;" /></td>
+            <td><input type="date" class="expiry-input" data-id="${it.id}" value="${it.expiryDate}" style="width:100%; padding:8px; border: 1px solid var(--color-border); border-radius:6px;" /></td>
+            <td><span class="badge ${st.key}">${st.label}</span></td>
+            <td>
+              <button class="btn-save" data-id="${it.id}">Save</button>
+              <button class="btn-sell" data-id="${it.id}" data-name="${escapeHtml(it.name)}">Sell</button>
+              <button class="btn-delete" data-id="${it.id}" data-name="${escapeHtml(it.name)}">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.querySelectorAll('.btn-save').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.getAttribute('data-id');
+          const item = allData.find(it => String(it.id) === String(id));
+          if (!item) return;
+          const newQty = Number(document.querySelector(`.qty-input[data-id="${id}"]`).value || 0);
+          const newExpiry = document.querySelector(`.expiry-input[data-id="${id}"]`).value || item.expiryDate;
+          if (!confirm(`Save changes to ${item.name}?`)) return;
+          const ok = await doAction('update', {
+            name: item.name, strength: item.strength, currentQuantity: item.quantity, newQuantity: newQty, newExpiry, expiryDate: item.expiryDate
+          });
+          if (ok) { alert('Updated successfully'); render(); }
+        };
+      });
+
+      document.querySelectorAll('.btn-sell').forEach(btn => {
+        btn.onclick = async () => {
+          const name = btn.getAttribute('data-name');
+          const qtyStr = prompt(`Sell how many units of ${name}?`, '1');
+          if (!qtyStr) return;
+          const q = Number(qtyStr);
+          if (!Number.isInteger(q) || q <= 0) { alert('Invalid qty'); return; }
+          const ok = await doAction('sell', { name, quantity: q });
+          if (ok) { alert('Sale recorded'); render(); }
+        };
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.onclick = async () => {
+          const name = btn.getAttribute('data-name');
+          if (!confirm(`Delete ALL entries for "${name}"?`)) return;
+          const ok = await doAction('delete', { name });
+          if (ok) { alert('Deleted'); render(); }
+        };
+      });
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === DB_KEY) render();
+    });
+
+    window.addEventListener('load', () => {
+      initCharts();
+      render();
+    });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('.navbar a').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      });
+    </script>
+</body>
+</html>
